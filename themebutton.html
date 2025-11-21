@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Light / Dark Theme Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* --- THEME TOKENS (CSS VARIABLES) --- */
+    :root {
+      --bg: #f5f5f5;
+      --bg-elevated: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --border: rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 18px 35px rgba(15, 23, 42, 0.12);
+    }
+
+    /* Dark theme overrides */
+    :root[data-theme="dark"] {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --border: rgba(148, 163, 184, 0.35);
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.65);
+    }
+
+    /* --- GLOBAL STYLES --- */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.25), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.15), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: background 260ms ease, color 260ms ease;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 960px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(15, 23, 42, 0.06)),
+                  var(--bg-elevated);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      padding: 24px 24px 28px;
+      backdrop-filter: blur(18px);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      letter-spacing: 0.02em;
+    }
+
+    .title-block p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* --- THEME TOGGLE BUTTON --- */
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.04);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: background 180ms ease, border-color 180ms ease, transform 140ms ease;
+      user-select: none;
+    }
+
+    :root[data-theme="dark"] .theme-toggle {
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .toggle-pill {
+      width: 42px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.4);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      transition: background 180ms ease;
+    }
+
+    .toggle-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
+      transform: translateX(0);
+      transition: transform 200ms ease;
+    }
+
+    :root[data-theme="dark"] .toggle-pill {
+      background: rgba(56, 189, 248, 0.45);
+    }
+
+    :root[data-theme="dark"] .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toggle-label span {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* --- GRID CONTENT --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.25), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.2), transparent 55%),
+                  color-mix(in srgb, var(--bg-elevated) 84%, transparent 16%);
+      padding: 18px 16px 16px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.22), transparent 60%);
+      opacity: 0;
+      transition: opacity 200ms ease;
+      pointer-events: none;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.25);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-pill {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+    }
+
+    .card p {
+      margin: 4px 0 0;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        padding: 18px 16px 22px;
+        border-radius: 18px;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="title-block">
+        <h1>Light ↔ Dark Theme Layout</h1>
+        <p>Toggle the switch to see the interface adapt between light and dark modes.</p>
+      </div>
+
+      <!-- Theme toggle button -->
+      <button class="theme-toggle" type="button" id="themeToggle" aria-label="Toggle light or dark theme">
+        <div class="toggle-pill">
+          <div class="toggle-thumb"></div>
+        </div>
+        <div class="toggle-label">
+          <span id="themeLabel">Light</span>
+          <span aria-hidden="true">☀️ / 🌙</span>
+        </div>
+      </button>
+    </header>
+
+    <main>
+      <div class="grid">
+        <article class="card">
+          <div class="card-title">
+            Overview
+            <span class="card-pill">Theme aware</span>
+          </div>
+          <p>
+            This layout uses CSS variables and a <code>data-theme</code> attribute on
+            <code>:root</code> to smoothly switch between light and dark themes.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-title">
+            How it works
+            <span class="card-pill">CSS vars</span>
+          </div>
+          <p>
+            All colours come from variables like <code>--bg</code> and
+            <code>--text</code>. The dark theme simply overrides those values.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-title">
+            Where to use
+            <span class="card-pill">Flexible</span>
+          </div>
+          <p>
+            Drop this into a standalone page, or adapt parts of it for dashboards,
+            intranet tiles, or email-style layouts.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-title">
+            Customisation
+            <span class="card-pill">Easy</span>
+          </div>
+          <p>
+            Update font sizes, swap colours, or plug in your own content blocks while
+            keeping the same theme system.
+          </p>
+        </article>
+      </div>
+    </main>
+
+    <footer>
+      <span>Theme system powered by CSS variables.</span>
+      <span>Edit colours in <code>:root</code> and <code>:root[data-theme="dark"]</code>.</span>
+    </footer>
+  </div>
+
+  <script>
+    // Simple theme toggle with localStorage
+    const root = document.documentElement;
+    const toggleBtn = document.getElementById('themeToggle');
+    const label = document.getElementById('themeLabel');
+
+    // Load saved theme if available
+    const savedTheme = localStorage.getItem('color-theme');
+    if (savedTheme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+      label.textContent = 'Dark';
+    } else {
+      root.setAttribute('data-theme', 'light');
+      label.textContent = 'Light';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      label.textContent = next.charAt(0).toUpperCase() + next.slice(1);
+      localStorage.setItem('color-theme', next);
+    });
+  </script>
+</body>
+</html>
